@@ -1,0 +1,32 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: roast-backend
+    runtime: docker
+    rootDir: .
+    dockerContext: .
+    dockerfilePath: backend/Dockerfile
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: AI_PROVIDER
+        value: gemini
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 8000
+
+  # Frontend Static Site
+  - type: static
+    name: roast-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: roast-backend
+          property: url

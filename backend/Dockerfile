@@ -9,12 +9,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
-COPY requirements.txt .
+# Context is project root, so we copy from backend/requirements.txt
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY app/ ./app/
-COPY ../prompts/ ./prompts/
+COPY backend/app/ ./app/
+# Copy prompts directory to /prompts (root of container)
+COPY prompts/ /prompts/
 
 # Expose port
 EXPOSE 8000
