@@ -30,4 +30,4 @@ services:
         fromService:
           type: web
           name: roast-backend
-          property: url
+          property: host

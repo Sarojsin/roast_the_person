@@ -2,7 +2,16 @@
  * API client for communicating with the backend.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const getApiUrl = () => {
+  const url = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  // If no protocol is provided, assume valid production URL implies https
+  return `https://${url}`;
+};
+
+const API_BASE_URL = getApiUrl();
 
 /**
  * Upload an image to get roasted
