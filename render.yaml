@@ -18,9 +18,9 @@ services:
       - key: PORT
         value: 8000
 
+staticSites:
   # Frontend Static Site
-  - type: static
-    name: roast-frontend
+  - name: roast-frontend
     rootDir: frontend
     buildCommand: npm install && npm run build
     publishDir: dist
