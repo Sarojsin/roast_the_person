@@ -26,6 +26,15 @@ jobs:
     
     - name: Run tests
       run: |
+        echo "Current directory:"
+        pwd
+        echo "Directory contents:"
+        ls -la
+        echo "Backend contents:"
+        ls -la backend
+        echo "Tests contents:"
+        ls -la tests || echo "tests not found in root"
+        
         export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
         pytest tests/ -v --cov=backend/app --cov-report=term-missing
     
