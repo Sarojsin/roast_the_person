@@ -24,19 +24,12 @@ jobs:
         pip install -r backend/requirements.txt
         pip install pytest pytest-cov
     
-    - name: Run tests
+    - name: Run Tests (Attempt 3)
+      working-directory: .
       run: |
-        echo "Current directory:"
-        pwd
-        echo "Directory contents:"
-        ls -la
-        echo "Backend contents:"
-        ls -la backend
-        echo "Tests contents:"
-        ls -la tests || echo "tests not found in root"
-        
-        export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
-        pytest tests/ -v --cov=backend/app --cov-report=term-missing
+        python -m pytest tests/ -v --cov=backend/app --cov-report=term-missing
+      env:
+        PYTHONPATH: ${{ github.workspace }}/backend
     
   test-frontend:
     runs-on: ubuntu-latest
