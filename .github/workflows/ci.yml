@@ -24,12 +24,9 @@ jobs:
         pip install -r backend/requirements.txt
         pip install pytest pytest-cov
     
-    - name: Run Tests (Attempt 3)
+    - name: Run Tests (Attempt 4 - Config File)
       working-directory: .
-      run: |
-        python -m pytest tests/ -v --cov=backend/app --cov-report=term-missing
-      env:
-        PYTHONPATH: ${{ github.workspace }}/backend
+      run: pytest
     
   test-frontend:
     runs-on: ubuntu-latest
