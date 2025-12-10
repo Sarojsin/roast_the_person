@@ -1,4 +1,4 @@
-"""
+"""main.py
 FastAPI application entry point.
 Roast My Profile - AI-powered profile picture roasting service.
 """

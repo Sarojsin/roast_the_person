@@ -1,4 +1,5 @@
 """
+model_client.py
 AI model client for generating roasts using vision models.
 Supports both Gemini and OpenAI.
 """
@@ -29,12 +30,22 @@ class ModelClient:
                 raise ValueError("GEMINI_API_KEY not set")
             
             genai.configure(api_key=settings.GEMINI_API_KEY)
-            # Use gemini-2.0-flash which is available for this API key
-            self.model = genai.GenerativeModel("gemini-2.0-flash")
+            # Use model from settings
+            self.model = genai.GenerativeModel(settings.GEMINI_MODEL)
+        
         
         elif self.provider == "openai":
-            # OpenAI implementation can be added here
-            raise NotImplementedError("OpenAI provider not yet implemented")
+            # OpenAI implementation
+            try:
+                from openai import OpenAI
+            except ImportError:
+                raise ImportError("openai package not installed")
+            if not settings.OPENAI_API_KEY:
+                raise ValueError("OPENAI_API_KEY not set")
+            
+            self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
+            self.model_name = settings.OPENAI_MODEL
+        
         
         else:
             raise ValueError(f"Unknown AI provider: {self.provider}")
@@ -52,6 +63,8 @@ class ModelClient:
         """
         if self.provider == "gemini":
             return self._analyze_with_gemini(image_bytes, prompt)
+        elif self.provider == "openai":
+            return self._analyze_with_openai(image_bytes, prompt)
         else:
             raise NotImplementedError(f"Provider {self.provider} not implemented")
     
@@ -107,8 +120,11 @@ class ModelClient:
         # For Gemini, we can do this in a single call with both image and roast instructions
         full_prompt = f"{roast_prompt}\n\nImage Analysis:\n{analysis}\n\nNow generate a witty roast:"
         
+        
         if self.provider == "gemini":
             roast = self._generate_roast_gemini(image_bytes, full_prompt)
+        elif self.provider == "openai":
+            roast = self._generate_roast_openai(image_bytes, full_prompt)
         else:
             raise NotImplementedError(f"Provider {self.provider} not implemented")
         
@@ -141,6 +157,90 @@ class ModelClient:
             return response.text.strip()
         else:
             raise ValueError("No roast generated")
+    
+    def _analyze_with_openai(self, image_bytes: bytes, prompt: str) -> str:
+        """
+        Analyze image using OpenAI vision.
+        
+        Args:
+            image_bytes: Raw image bytes
+            prompt: Analysis prompt
+            
+        Returns:
+            OpenAI's analysis
+        """
+        import base64
+        
+        # Encode image to base64
+        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+        
+        # Call OpenAI vision API
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_b64}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=500
+        )
+        
+        if response.choices and response.choices[0].message.content:
+            return response.choices[0].message.content
+        else:
+            raise ValueError("No response from OpenAI")
+    
+    def _generate_roast_openai(self, image_bytes: bytes, prompt: str) -> str:
+        """
+        Generate roast using OpenAI vision.
+        
+        Args:
+            image_bytes: Raw image bytes
+            prompt: Full roast generation prompt
+            
+        Returns:
+            Generated roast text
+        """
+        import base64
+        
+        # Encode image to base64
+        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+        
+        # Call OpenAI vision API
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_b64}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=500
+        )
+        
+        if response.choices and response.choices[0].message.content:
+            return response.choices[0].message.content.strip()
+        else:
+            raise ValueError("No roast generated")
+
+
 
 
 # Global model client instance

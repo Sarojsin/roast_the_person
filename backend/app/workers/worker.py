@@ -1,4 +1,4 @@
-"""
+"""workers/worker.py
 Background worker for processing roast jobs asynchronously.
 Uses threading with a simple queue system.
 """

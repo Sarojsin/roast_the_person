@@ -1,4 +1,4 @@
-"""
+"""config.py
 Configuration management for the Roast My Profile backend.
 Loads settings from environment variables with sensible defaults.
 """
